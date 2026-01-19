@@ -1,0 +1,76 @@
+services:
+  registry:
+    build:
+      context: .
+      args:
+        CMD: registry
+    container_name: registry
+    ports:
+      - "9000:9000"
+
+  echo1:
+    build:
+      context: .
+      args:
+        CMD: echo
+    container_name: echo1
+    depends_on:
+      - registry
+    environment:
+      INSTANCE_ID: echo1
+      PUBLIC_ADDR: echo1:9101
+      WEIGHT: "5"
+    command: ["-listen", ":9101", "-registry", "registry:9000"]
+
+  echo2:
+    build:
+      context: .
+      args:
+        CMD: echo
+    container_name: echo2
+    depends_on:
+      - registry
+    environment:
+      INSTANCE_ID: echo2
+      PUBLIC_ADDR: echo2:9102
+      WEIGHT: "1"
+    command: ["-listen", ":9102", "-registry", "registry:9000"]
+
+  math1:
+    build:
+      context: .
+      args:
+        CMD: math
+    container_name: math1
+    depends_on:
+      - registry
+    environment:
+      INSTANCE_ID: math1
+      PUBLIC_ADDR: math1:9201
+      WEIGHT: "2"
+    command: ["-listen", ":9201", "-registry", "registry:9000"]
+
+  math2:
+    build:
+      context: .
+      args:
+        CMD: math
+    container_name: math2
+    depends_on:
+      - registry
+    environment:
+      INSTANCE_ID: math2
+      PUBLIC_ADDR: math2:9202
+      WEIGHT: "8"
+    command: ["-listen", ":9202", "-registry", "registry:9000"]
+
+  client:
+    profiles: ["client"]
+    build:
+      context: .
+      args:
+        CMD: client
+    container_name: client
+    depends_on:
+      - registry
+    command: ["-registry", "registry:9000", "-service", "echo", "-algo", "wrr", "-n", "25", "-sleep", "150ms"]
