@@ -1,26 +1,25 @@
-# Service Registry + Client-side Load Balancing (Go, net/rpc)
 
-Implementazione del requisito “Service Registry + client-side load balancing” (SR + lookup + cache + algoritmi).
+Implementazione “Service Registry + client-side load balancing” come compito del corso di Sistemi Distribuiti e Cloud Computing 2025/2026
 
 ## Componenti
 
-- **Registry** (`cmd/registry`): metodi RPC
+- Registry (`cmd/registry`): metodi RPC
   - `Registry.Register` (registrazione server)
   - `Registry.Deregister` (deregistrazione server)
   - `Registry.Lookup` (lista istanze attive per servizio)
 
 - **Servizi RPC**
-  - **Echo** (`cmd/echo`): `Echo.Echo(msg) -> msg`
-  - **Math** (`cmd/math`): `Math.Add(a,b) -> sum`
+  - Echo (`cmd/echo`): `Echo.Echo(msg) -> msg`
+  - Math (`cmd/math`): `Math.Add(a,b) -> sum`
   - All’avvio registrano se stessi sul registry; su SIGTERM/SIGINT eseguono deregistrazione.
 
 - **Client** (`cmd/client`)
-  - Fa `Lookup` **una sola volta all’inizio della sessione** (cache locale)
+  - Fa `Lookup` una sola volta all’inizio della sessione (cache locale)
   - Simula un carico con N richieste
   - Algoritmi:
     - `random` (stateless)
     - `rr` (round robin)
-    - `wrr` (smooth weighted round robin, **stateful** sui pesi restituiti dal registry)
+    - `wrr` (smooth weighted round robin, stateful sui pesi restituiti dal registry)
 
 ## Esecuzione locale (senza Docker)
 
@@ -44,11 +43,11 @@ Terminale 4:
 go run ./cmd/client -registry localhost:9000 -service echo -algo wrr -n 20
 ```
 
-## Docker Compose: simulazione dinamica
+## Docker Compose
 
 Non avviare tutto insieme: avvia a mano per dimostrare che la lista del registry varia nel tempo.
 
-1) Avvia **solo** registry:
+1) Avvia solo registry:
 ```bash
 docker compose up -d registry
 ```
