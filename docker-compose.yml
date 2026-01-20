@@ -64,6 +64,35 @@ services:
       WEIGHT: "8"
     command: ["-listen", ":9202", "-registry", "registry:9000"]
 
+  kv1:
+    build:
+      context: .
+      args:
+        CMD: kv
+    container_name: kv1
+    depends_on:
+      - registry
+    environment:
+      INSTANCE_ID: kv1
+      PUBLIC_ADDR: kv1:9301
+      PRIMARY_ID: kv1
+    command: ["-listen", ":9301", "-registry", "registry:9000"]
+
+  kv2:
+    build:
+      context: .
+      args:
+        CMD: kv
+    container_name: kv2
+    depends_on:
+      - registry
+    environment:
+      INSTANCE_ID: kv2
+      PUBLIC_ADDR: kv2:9302
+      PRIMARY_ID: kv1
+    command: ["-listen", ":9302", "-registry", "registry:9000"]
+
+
   client:
     profiles: ["client"]
     build:
